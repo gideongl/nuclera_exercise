@@ -1,6 +1,6 @@
 from pages.base_page import BasePage
 from pages.sections.work_abroad_section import WorkAbroadSection
-from pages.sections.product_list_section import ProductListSection
+from pages.sections.product_list_section import ProductSection
 from pages.sections.cart_section import CartSection
 from playwright.sync_api import Page, expect
 
@@ -9,26 +9,33 @@ class ShoppingPage (BasePage):
         super().__init__(page)
         self.page = page
         self.work_abroad_section = WorkAbroadSection(page)
-        self.product_list_section = ProductListSection(page)
+        self.product_list_section = ProductSection(page)
         self.cart_section = CartSection(page)
-        
+
         #locators for the main page elements
-        #locator for link to repo from the 'star' link in the midpage
-        self.repo_star_link = page.locator('a[role="link"][aria-label="Star jeffersonRibeiro/react-shopping-cart on GitHub"]')
         #locator for the link to the repo from the octocat icon in the top left corner
-        self.repo_cat_link = page.locator('a[aria-label="View source on Github"]')
-        #cart sideboard locator for toggle to display sideboard
-        self.cart_sideboard_toggle = page.locator("#username")
+        self.repo_cat_link = page.locator("a[aria-label='View source on Github']")
+        self.repo_cat_svg  = self.repo_cat_link.locator("svg")
+        #Locator for 'star' repo link
+        self.repo_star_link = page.locator('a[aria-label="Star jeffersonRibeiro/react-shopping-cart on GitHub"]')
+        #cart sideboard locators 
+        # Used for toggle to display sideboard and displaying the quantity of products in the cart displayed
+        self.cart_quantity = page.locator("div[title='Products in cart quantity']")
+
         #locator for page errors
         self.error_message_locator = page.locator(".error, .alert, [role='alert']")
 
+
+    #Return Page Title
+    def get_title(self):
+        return self.page.title()
 
     # Page-level methods
     def go_to_page(self, url: str):
         self.page.goto(url)
 
     # Method to get the page title and verify page has loaded
-    def verify_page_loaded(self, expected_title: str = "Shopping Page"):
+    def verify_page_loaded(self, expected_title: str = "Typescript React Shopping cart"):
         assert self.get_title() == expected_title
 
     #Method to get any page error message

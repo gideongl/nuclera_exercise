@@ -16,20 +16,31 @@ def test_shopping_page_UI_check(page, network_logger):
     
     # Navigate to shopping page
     shopping_page.goto("https://automated-test-evaluation.web.app/")
-    
+    shopping_page.verify_page_loaded()
     # Make Sure All Elements Are Visible
     shopping_page.logger.info("Checking visibility of all elements on the page")
     # --- Verify main page locators are visible ---
     expect(shopping_page.repo_star_link).to_be_visible()
-    expect(shopping_page.repo_cat_link).to_be_visible()
-    expect(shopping_page.cart_sideboard_toggle).to_be_visible()
+    expect(shopping_page.repo_cat_svg).to_be_visible()
+    expect(shopping_page.cart_quantity).to_be_visible()
+    expect(shopping_page.cart_quantity).to_have_text("0")
+
     # --- Verify section elements are visible ---
+
+    # Cart section
+    #open the cart sideboard
+    shopping_page.cart_quantity.click()
+    # Verify cart section is visible
+
+    expect(shopping_page.cart_section.section_root).to_be_visible()
+
+
+    
     # Work Abroad section
     expect(shopping_page.work_abroad_section.section_root).to_be_visible()
     # Product list section
     expect(shopping_page.product_list_section.section_root).to_be_visible()
-    # Cart section
-    expect(shopping_page.cart_section.section_root).to_be_visible()
+    
 
 
 
@@ -49,7 +60,7 @@ def test_shopping_page_UI_check(page, network_logger):
 @pytest.mark.ui
 def test_work_abroad_section(page):
     shopping_page = ShoppingPage(page)
-    shopping_page.go_to_page("https://react-shopping-cart-67954.firebaseapp.com/")
+    shopping_page.go_to_page("https://automated-test-evaluation.web.app/")
 
     section = shopping_page.work_abroad_section
     expect(section.section_root).to_be_visible()
@@ -60,18 +71,19 @@ def test_work_abroad_section(page):
 @pytest.mark.ui
 def test_product_list_section(page):
     shopping_page = ShoppingPage(page)
-    shopping_page.go_to_page("https://react-shopping-cart-67954.firebaseapp.com/")
+    shopping_page.go_to_page("https://automated-test-evaluation.web.app/")
 
     section = shopping_page.product_list_section
     expect(section.section_root).to_be_visible()
     expect(section.product_cards).to_have_count_greater_than(0)  # at least one product card
     expect(section.add_to_cart_buttons.first).to_be_visible()
+    expect(section.get_all_products).not_to_be_empty
 
 
 @pytest.mark.ui
 def test_cart_section(page):
     shopping_page = ShoppingPage(page)
-    shopping_page.go_to_page("https://react-shopping-cart-67954.firebaseapp.com/")
+    shopping_page.go_to_page("https://automated-test-evaluation.web.app/")
 
     section = shopping_page.cart_section
     expect(section.section_root).to_be_visible()

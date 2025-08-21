@@ -1,3 +1,6 @@
+##Product List Section refers to the parts of the page inside the container than includes all product cards, size filters and 'star' repo link
+
+
 from dataclasses import dataclass
 from typing import List, Optional
 from playwright.sync_api import Page, Locator
@@ -21,6 +24,7 @@ class ProductSection:
         self.product_cards: Locator = self.root.locator("div.sc-124al1g-2")
         # Locator for the size filter container
         self.size_filter_container: Locator = page.locator("h4:has-text('Sizes:')").locator("..")  # parent div
+ 
 
     # --- Product methods ---
 
