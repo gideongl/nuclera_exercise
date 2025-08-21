@@ -11,5 +11,5 @@ def network_logger(page):
     page.on("request", log_request)
     yield requests
 
-    with open("artifacts/network_logs.json", "w") as f:
+    with open("artifacts/network_logs/network_logs.json", "w") as f:
         json.dump(requests, f, indent=2)

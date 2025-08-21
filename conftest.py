@@ -5,6 +5,8 @@ import logging
 import logging.config
 import pytest
 from pytest_html import extras
+from fixtures.network import network_logger
+
 
 # -----------------------------
 # Load centralized logging.ini
