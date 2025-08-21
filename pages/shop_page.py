@@ -1,10 +1,10 @@
-from pages.base_page import Basepage
-from sections.work_abroad_section import WorkAbroadSection
-from sections.product_list_section import ProductListSection
-from sections.cart_section import CartSection
+from pages.base_page import BasePage
+from pages.sections.work_abroad_section import WorkAbroadSection
+from pages.sections.product_list_section import ProductListSection
+from pages.sections.cart_section import CartSection
 from playwright.sync_api import Page, expect
 
-class ShoppingPage (Basepage):
+class ShoppingPage (BasePage):
     def __init__(self, page: Page):
         super().__init__(page)
         self.page = page

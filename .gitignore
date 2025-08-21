@@ -10,3 +10,6 @@ venv/
 #ignore the artifacts and reports folders
 artifacts/
 reports/
+
+#ignore pycache files
+__pycache__/
