@@ -3,9 +3,10 @@ from playwright.sync_api import Page, expect
 class WorkAbroadSection:
     def __init__(self, page: Page):
         self.page = page
-        self.heading = page.locator('h4:has-text("Work in the Netherlands")')
-        self.paragraph = page.locator('div.sc-joc36b-3 p')
-        self.linkedin_link = page.locator('a[href="https://www.linkedin.com/in/jeremy-akeze-9542b396/"]')
+        self.section_root = page.locator("div:has(h4:has-text('Work in the Netherlands'))")
+        self.heading = self.section_root.locator("h4")
+        self.paragraph = self.section_root.locator("p")
+        self.linkedin_link = self.section_root.locator("a[href*='linkedin.com']")
 
 
     def verify_heading_visible(self):

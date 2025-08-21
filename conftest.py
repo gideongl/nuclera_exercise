@@ -24,8 +24,13 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 ARTIFACTS_DIR = os.path.join(BASE_DIR, "artifacts")
 SCREENSHOT_DIR = os.path.join(ARTIFACTS_DIR, "screenshots")
 VIDEO_DIR = os.path.join(ARTIFACTS_DIR, "videos")
+NETWORK_LOGGER_DIR = os.path.join(ARTIFACTS_DIR, "network_logs")
+
+#create directories if they do not exist
+os.makedirs(ARTIFACTS_DIR, exist_ok=True)
 os.makedirs(SCREENSHOT_DIR, exist_ok=True)
 os.makedirs(VIDEO_DIR, exist_ok=True)
+os.makedirs(NETWORK_LOGGER_DIR, exist_ok=True)
 
 
 # --- Helper to read last N lines from log ---

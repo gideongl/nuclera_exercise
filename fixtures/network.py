@@ -1,6 +1,8 @@
 import pytest
 import json
 
+
+
 @pytest.fixture
 def network_logger(page):
     requests = []
