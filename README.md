@@ -90,6 +90,7 @@ Please see final section for ⚠️ Notes and Limitations
   Navigate to Project Root Directory
   ```bash
   python -m pip install --upgrade pip
+  python -m pip install pytest-playwright
   python -m pip install -r requirements.txt
   python -m playwright install
   ```
