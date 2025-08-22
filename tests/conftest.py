@@ -14,16 +14,10 @@ from fixtures.network import network_logger
 REPO_ROOT = Path(__file__).resolve().parent.parent  # tests/ -> repo root
 LOGGING_CONFIG_PATH = REPO_ROOT / "config" / "logging.ini"
 
-# Load centralized logging.ini
-logging.config.fileConfig(LOGGING_CONFIG_PATH, disable_existing_loggers=False)
-
-# Module-level logger for hooks and fixtures
-logger = logging.getLogger("pytest_playwright")
-
 # -----------------------------
 # Artifact directories
 # -----------------------------
-ARTIFACTS_DIR = REPO_ROOT / "tests" / "artifacts"
+ARTIFACTS_DIR = REPO_ROOT / "artifacts"
 SCREENSHOT_DIR = ARTIFACTS_DIR / "screenshots"
 VIDEO_DIR = ARTIFACTS_DIR / "videos"
 NETWORK_LOGGER_DIR = ARTIFACTS_DIR / "network_logs"
@@ -33,6 +27,13 @@ ARTIFACTS_DIR.mkdir(parents=True, exist_ok=True)
 SCREENSHOT_DIR.mkdir(parents=True, exist_ok=True)
 VIDEO_DIR.mkdir(parents=True, exist_ok=True)
 NETWORK_LOGGER_DIR.mkdir(parents=True, exist_ok=True)
+
+# Load centralized logging.ini
+logging.config.fileConfig(LOGGING_CONFIG_PATH, disable_existing_loggers=False)
+
+# Module-level logger for hooks and fixtures
+logger = logging.getLogger("pytest_playwright")
+
 
 # --- Helper to read last N lines from log ---
 def _read_log_file_tail(lines: int = 50) -> str:
