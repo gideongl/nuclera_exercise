@@ -56,6 +56,13 @@ Please see final section for ⚠️ Notes and Limitations
     sudo apt update
     sudo apt install python3 python3-pip -y
   ```
+  Install Python (macOS / Linux):  
+  ```bash
+      brew update
+      brew install python
+      python3 --version
+      pip3 --version
+  ```
   Otherwise, it’s recommended to download Python from python.org
   and check Add Python to PATH during installation
   
@@ -69,6 +76,10 @@ Please see final section for ⚠️ Notes and Limitations
   - **Windows (PowerShell)**  
     ```bash
     venv\Scripts\Activate.ps1
+    ```
+  - **Windows (Command Prompt)**  
+    ```bash
+    venv\Scripts\Activate
     ```
   - **macOS / Linux**  
     ```bash
