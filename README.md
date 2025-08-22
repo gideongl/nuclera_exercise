@@ -49,8 +49,17 @@ Please see final section for ⚠️ Notes and Limitations
   cd your-repo
   ```
 
-### 2. Create and Activate a Virtual Environment
-
+### 2. Install Python and Create and Activate a Virtual Environment
+  
+  Install Python (Windows):
+  ```bash
+    sudo apt update
+    sudo apt install python3 python3-pip -y
+  ```
+  Otherwise, it’s recommended to download Python from python.org
+  and check Add Python to PATH during installation
+  
+  Create venv:
   ```bash
   python -m venv venv
   ```
