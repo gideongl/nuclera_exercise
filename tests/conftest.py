@@ -1,44 +1,45 @@
 # conftest.py
-import os
 import json
 import logging
 import logging.config
+from pathlib import Path
+import os
 import pytest
 from pytest_html import extras
 from fixtures.network import network_logger
 
-
 # -----------------------------
+# Determine repo root and config paths
+# -----------------------------
+REPO_ROOT = Path(__file__).resolve().parent.parent  # tests/ -> repo root
+LOGGING_CONFIG_PATH = REPO_ROOT / "config" / "logging.ini"
+
 # Load centralized logging.ini
-# -----------------------------
-logging_config_path = os.path.join(os.path.dirname(__file__), "config/logging.ini")
-logging.config.fileConfig(logging_config_path, disable_existing_loggers=False)
+logging.config.fileConfig(LOGGING_CONFIG_PATH, disable_existing_loggers=False)
 
-# Create a module-level logger for hooks and fixtures
+# Module-level logger for hooks and fixtures
 logger = logging.getLogger("pytest_playwright")
 
 # -----------------------------
 # Artifact directories
 # -----------------------------
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-ARTIFACTS_DIR = os.path.join(BASE_DIR, "artifacts")
-SCREENSHOT_DIR = os.path.join(ARTIFACTS_DIR, "screenshots")
-VIDEO_DIR = os.path.join(ARTIFACTS_DIR, "videos")
-NETWORK_LOGGER_DIR = os.path.join(ARTIFACTS_DIR, "network_logs")
+ARTIFACTS_DIR = REPO_ROOT / "tests" / "artifacts"
+SCREENSHOT_DIR = ARTIFACTS_DIR / "screenshots"
+VIDEO_DIR = ARTIFACTS_DIR / "videos"
+NETWORK_LOGGER_DIR = ARTIFACTS_DIR / "network_logs"
 
-#create directories if they do not exist
-os.makedirs(ARTIFACTS_DIR, exist_ok=True)
-os.makedirs(SCREENSHOT_DIR, exist_ok=True)
-os.makedirs(VIDEO_DIR, exist_ok=True)
-os.makedirs(NETWORK_LOGGER_DIR, exist_ok=True)
-
+# Create directories if they do not exist
+ARTIFACTS_DIR.mkdir(parents=True, exist_ok=True)
+SCREENSHOT_DIR.mkdir(parents=True, exist_ok=True)
+VIDEO_DIR.mkdir(parents=True, exist_ok=True)
+NETWORK_LOGGER_DIR.mkdir(parents=True, exist_ok=True)
 
 # --- Helper to read last N lines from log ---
 def _read_log_file_tail(lines: int = 50) -> str:
-    log_file = os.path.join(ARTIFACTS_DIR, "test.log")
-    if not os.path.exists(log_file):
+    log_file = ARTIFACTS_DIR / "test.log"
+    if not log_file.exists():
         return ""
-    with open(log_file, "r", encoding="utf-8") as f:
+    with log_file.open("r", encoding="utf-8") as f:
         return "".join(f.readlines()[-lines:])
 
 # --- Pytest hook to attach logs/screenshots/videos/network ---
@@ -57,13 +58,10 @@ def pytest_runtest_makereport(item, call):
         # Screenshot
         if report.failed and "page" in item.funcargs:
             page = item.funcargs["page"]
-            screenshot_path = os.path.join(
-                SCREENSHOT_DIR,
-                f"{item.nodeid.replace('/', '_').replace(':', '_')}.png",
-            )
+            screenshot_path = SCREENSHOT_DIR / f"{item.nodeid.replace('/', '_').replace(':', '_')}.png"
             try:
-                page.screenshot(path=screenshot_path, full_page=True)
-                extra.append(extras.image(screenshot_path, name="Failure Screenshot"))
+                page.screenshot(path=str(screenshot_path), full_page=True)
+                extra.append(extras.image(str(screenshot_path), name="Failure Screenshot"))
             except Exception as e:
                 logger.warning(f"Could not capture screenshot: {e}")
 
@@ -73,14 +71,11 @@ def pytest_runtest_makereport(item, call):
             try:
                 for p in context.pages:
                     if p.video:
-                        video_path = p.video.path()
-                        if os.path.exists(video_path):
-                            new_path = os.path.join(
-                                VIDEO_DIR,
-                                f"{item.nodeid.replace('/', '_').replace(':', '_')}.webm",
-                            )
-                            os.rename(video_path, new_path)
-                            extra.append(extras.video(new_path, name="Failure Video"))
+                        video_path = Path(p.video.path())
+                        if video_path.exists():
+                            new_path = VIDEO_DIR / f"{item.nodeid.replace('/', '_').replace(':', '_')}.webm"
+                            video_path.rename(new_path)
+                            extra.append(extras.video(str(new_path), name="Failure Video"))
                             break
             except Exception as e:
                 logger.warning(f"Could not attach video: {e}")
