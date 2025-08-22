@@ -21,12 +21,15 @@ ARTIFACTS_DIR = REPO_ROOT / "artifacts"
 SCREENSHOT_DIR = ARTIFACTS_DIR / "screenshots"
 VIDEO_DIR = ARTIFACTS_DIR / "videos"
 NETWORK_LOGGER_DIR = ARTIFACTS_DIR / "network_logs"
+DOWNLOADS_DIR = ARTIFACTS_DIR / "downloads"
+
 
 # Create directories if they do not exist
 ARTIFACTS_DIR.mkdir(parents=True, exist_ok=True)
 SCREENSHOT_DIR.mkdir(parents=True, exist_ok=True)
 VIDEO_DIR.mkdir(parents=True, exist_ok=True)
 NETWORK_LOGGER_DIR.mkdir(parents=True, exist_ok=True)
+DOWNLOADS_DIR.mkdir(parents=True, exist_ok=True)    
 
 # Load centralized logging.ini
 logging.config.fileConfig(LOGGING_CONFIG_PATH, disable_existing_loggers=False)

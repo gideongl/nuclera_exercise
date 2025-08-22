@@ -6,6 +6,7 @@ from pages.shop_page import ShoppingPage
 from pages.sections.cart_section import CartSection
 
 @pytest.mark.usefixtures("network_logger")  # Optional network logging
+@pytest.mark.ui
 def test_shopping_page_UI_check(page, network_logger):
     """
     Test basic navigatability and visibility of key elements on the shopping page across all sections
@@ -87,7 +88,6 @@ def test_product_list_section(page):
     # Ensure get_all_products returns non-empty list
     products = section.get_all_products()
     assert products, "Expected non-empty list of products"
-
 
 
 @pytest.mark.ui

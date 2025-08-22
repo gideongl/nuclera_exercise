@@ -101,7 +101,7 @@ Please see final section for ⚠️ Notes and Limitations
 
   ```bash
 
-	pytest --html=reports/test_report.html --self-contained-html
+  pytest --html=reports/test_report.html --self-contained-html
   ```
 
   Run in headed mode:
