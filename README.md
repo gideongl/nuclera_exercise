@@ -87,7 +87,7 @@ Please see final section for ⚠️ Notes and Limitations
     ```
 
 ### 3. Install Dependencies
-
+  Navigate to Project Root Directory
   ```bash
   pip install --upgrade pip
   pip install -r requirements.txt
