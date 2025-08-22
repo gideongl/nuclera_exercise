@@ -2,6 +2,8 @@
 import pytest
 from pages.shop_page import ShoppingPage
 from playwright.sync_api import expect
+from pages.shop_page import ShoppingPage
+from pages.sections.cart_section import CartSection
 
 @pytest.mark.usefixtures("network_logger")  # Optional network logging
 def test_shopping_page_UI_check(page, network_logger):
@@ -27,32 +29,33 @@ def test_shopping_page_UI_check(page, network_logger):
 
     # --- Verify section elements are visible ---
 
-    # Cart section
+    # Cart section checks
     #open the cart sideboard
     shopping_page.cart_quantity.click()
     # Verify cart section is visible
-
     expect(shopping_page.cart_section.section_root).to_be_visible()
-
-
+    #close the cart sideboard, verification of it being open before and hidden after is implicit in the helper method used
+    shopping_page.cart_section.close_cart()
     
+
+
     # Work Abroad section
-    expect(shopping_page.work_abroad_section.section_root).to_be_visible()
+    shopping_page.work_abroad_section.verify_section_visible()
     # Product list section
-    expect(shopping_page.product_list_section.section_root).to_be_visible()
+    shopping_page.product_list_section.verify_section_visible()
     
-
-
-
     # Optional: inspect captured network requests
     if network_logger:
         shopping_page.logger.info(f"Captured {len(network_logger)} network requests")    
     
-    # Assert error message
+    # Capture error message, if any
     error_text = shopping_page.get_error_message()
-    shopping_page.logger.info(f"Captured error message: {error_text}")
-    assert error_text == "Not all expected elements are visible on the page", \
-        f"Expected error message not found: {error_text}"   
+
+    # Log the captured text for debugging
+    shopping_page.logger.info(f"Captured error message: {error_text!r}")
+
+    # Assert that no error message is present
+    assert not error_text, f"Unexpected error message found: {error_text}"
 
 
 # ---- Section-specific tests ----
@@ -74,10 +77,23 @@ def test_product_list_section(page):
     shopping_page.go_to_page("https://automated-test-evaluation.web.app/")
 
     section = shopping_page.product_list_section
+
+    # Section root should be visible
     expect(section.section_root).to_be_visible()
-    expect(section.product_cards).to_have_count_greater_than(0)  # at least one product card
-    expect(section.add_to_cart_buttons.first).to_be_visible()
-    expect(section.get_all_products).not_to_be_empty
+
+    # At least one product card exists
+    count = section.product_cards.count()
+    assert count > 0, f"Expected at least one product card, but found {count}"
+
+    # First product card's add-to-cart button is visible
+    first_card = section.product_cards.first
+    add_button = first_card.locator("button:has-text('Add to cart')")
+    expect(add_button).to_be_visible()
+
+    # Ensure get_all_products returns non-empty list
+    products = section.get_all_products()
+    assert products, "Expected non-empty list of products"
+
 
 
 @pytest.mark.ui
@@ -85,6 +101,8 @@ def test_cart_section(page):
     shopping_page = ShoppingPage(page)
     shopping_page.go_to_page("https://automated-test-evaluation.web.app/")
 
-    section = shopping_page.cart_section
-    expect(section.section_root).to_be_visible()
-    expect(section.checkout_button).to_be_visible()
+    cart_section = CartSection(page, shopping_page)
+    cart_section.open_cart()  # ensures the cart is visible
+
+    expect(cart_section.section_root).to_be_visible()
+    expect(cart_section.checkout_button).to_be_visible()

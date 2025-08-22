@@ -1,5 +1,5 @@
 from pages.base_page import BasePage
-from pages.sections.work_abroad_section import WorkAbroadSection
+from pages.sections.work_abroad_section import WorkInNetherlandsSection
 from pages.sections.product_list_section import ProductSection
 from pages.sections.cart_section import CartSection
 from playwright.sync_api import Page, expect
@@ -8,9 +8,9 @@ class ShoppingPage (BasePage):
     def __init__(self, page: Page):
         super().__init__(page)
         self.page = page
-        self.work_abroad_section = WorkAbroadSection(page)
+        self.work_abroad_section = WorkInNetherlandsSection(page)
         self.product_list_section = ProductSection(page)
-        self.cart_section = CartSection(page)
+        self.cart_section = CartSection(page, self)
 
         #locators for the main page elements
         #locator for the link to the repo from the octocat icon in the top left corner
