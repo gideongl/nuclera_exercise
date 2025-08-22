@@ -1,4 +1,4 @@
-# tests/basic_UI_tests.py
+# tests/shopping_flow_test.py
 import pytest
 from pages.shop_page import ShoppingPage
 from playwright.sync_api import expect
@@ -16,6 +16,7 @@ def test_shopping_flow_happy_path(page, network_logger):
     Select first product
     Add to cart
     Verify cart updates correctly
+    checkout
     """
     shopping_page = ShoppingPage(page)
     

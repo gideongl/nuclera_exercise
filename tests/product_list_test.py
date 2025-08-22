@@ -1,9 +1,11 @@
-# tests/basic_UI_tests.py
+# tests/product_list_test.py
 import pytest
 from pages.shop_page import ShoppingPage
 from playwright.sync_api import expect
 from pages.shop_page import ShoppingPage
 from pages.sections.cart_section import CartSection
+from pages.sections.product_list_section import ProductSection
+import math
 
 @pytest.mark.usefixtures("network_logger")  # Optional network logging
 @pytest.mark.ui
