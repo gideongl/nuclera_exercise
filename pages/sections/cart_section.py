@@ -134,3 +134,22 @@ class CartSection:
     def verify_item_in_cart(self, item_name: str) -> None:
         item = self.cart_items.locator(f"p:has-text('{item_name}')")
         expect(item).to_be_visible()
+
+
+    #Ensure Empty Cart UI elements are displayed when sideboard is opened with no items in cart
+    def verify_section_visible(self):
+        """
+        Assert that the cart section root and key inner elements are visible.
+        """
+        # Ensure the section root is visible
+        expect(self.section_root).to_be_visible()
+
+        # Check at least one cart item is visible (if any items exist)
+        if self.cart_items.count() > 0:
+            expect(self.cart_items.first).to_be_visible()
+
+        # Check that the checkout button is visible
+        expect(self.checkout_button).to_be_visible()
+
+        # Optionally, check the close button is visible
+        expect(self.cart_close_button).to_be_visible()
