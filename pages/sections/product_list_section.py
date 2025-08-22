@@ -20,7 +20,6 @@ class ProductSection:
 
         # --- Section root ---
         self.section_root: Locator = page.locator("main.sc-ebmerl-1.bmmyxu")
-
         # --- Inner elements ---
         self.product_cards: Locator = self.section_root.locator("div.sc-124al1g-2")
         self.add_to_cart_buttons: Locator = self.product_cards.locator("button.sc-124al1g-0")
@@ -119,8 +118,7 @@ class ProductSection:
     # --- Size filter methods ---
     def select_size(self, size: str):
         checkbox = self.size_filter_container.locator(f"input[data-testid='checkbox'][value='{size}']")
-        if not checkbox.is_checked():
-            checkbox.check()
+        checkbox.check(force=True)
 
     def deselect_size(self, size: str):
         checkbox = self.size_filter_container.locator(f"input[data-testid='checkbox'][value='{size}']")

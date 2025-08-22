@@ -20,7 +20,12 @@ class ShoppingPage (BasePage):
         self.repo_star_link = page.locator('a[aria-label="Star jeffersonRibeiro/react-shopping-cart on GitHub"]')
         #cart sideboard locators 
         # Used for toggle to display sideboard and displaying the quantity of products in the cart displayed
-        self.cart_quantity = page.locator("div[title='Products in cart quantity']")
+         # Quantity element:
+        # - Before: visible in the header (title attr version)
+        # - After: inside the open cart section
+        self.cart_quantity = page.locator(
+            "div[title='Products in cart quantity'], div.sc-1h98xa9-3"
+        )
 
         #locator for page errors
         self.error_message_locator = page.locator(".error, .alert, [role='alert']")

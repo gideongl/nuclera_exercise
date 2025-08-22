@@ -20,21 +20,31 @@ class CartProduct:
 
 
 class CartSection:
-    def __init__(self, page: Page, shop_page: ShoppingPage) -> None:
+    def __init__(self, page: Page, shop_page: "ShoppingPage") -> None:
         self.page = page
         self.shop_page = shop_page  # store reference to ShoppingPage
 
-        # Section root
-        self.section_root = page.locator("span:has-text('Cart')").locator("..").locator("..").locator("..")
+        # Section root (cart sidebar container)
+        self.section_root = page.locator("div.sc-1h98xa9-4")
 
-        # Locators scoped to the section root
-        self.cart_items = self.section_root.locator(".cart-item")
-        self.checkout_button = self.section_root.locator("button:has-text('Checkout')")
-        self.remove_buttons = self.section_root.locator("button[title='remove product from cart']")
+        # Cart items identified by having a Quantity: label
+        # In CartSection __init__
+        self.cart_items = self.section_root.locator("div.sc-11uohgb-0.hDmOrM")
+
+
+        # Buttons & actions inside cart
+        # Checkout button
+        self.checkout_button = self.section_root.get_by_role("button", name="Checkout")
+        # Remove product buttons
+        self.remove_buttons = self.section_root.get_by_title("remove product from cart")
         self.cart_close_button = self.section_root.locator("button:has-text('X')")
 
-        # Cart quantity button is global (not inside section root)
+        # Cart quantity button is global (outside section root)
         self.cart_quantity_button = page.locator("div[title='Products in cart quantity']")
+
+        #locators for cart information
+        self.total_price = self.section_root.locator("div.sc-1h98xa9-8.bciIxg > p.sc-1h98xa9-9.jzywDV")
+
 
     # --- Methods ---
     def open_cart(self) -> None:
@@ -48,6 +58,29 @@ class CartSection:
         """Return the number of line items in the cart."""
         count_text = self.shop_page.cart_quantity.inner_text()
         return int(count_text.strip())
+    
+    def get_cart_item(self, index: int) -> CartProduct:
+        """Return the cart item at the given index as a structured object."""
+        item = self.cart_items.nth(index)
+        
+        # Title
+        title = item.locator("p.sc-11uohgb-2.elbkhN").inner_text()
+
+        # Quantity
+        quantity_text = item.locator("p.sc-11uohgb-3.gKtloF").inner_text()
+        # extract number after "Quantity:"
+        import re
+        match = re.search(r"Quantity:\s*(\d+)", quantity_text)
+        quantity = int(match.group(1)) if match else 1
+
+        # Price per unit
+        price_text = item.locator("div.sc-11uohgb-4.bnZqjD > p").inner_text()
+        price = float(price_text.replace("$", "").strip())
+
+        # Subtotal (price * quantity)
+        subtotal = round(price * quantity, 2)
+
+        return CartProduct(title=title, quantity=quantity, price=price, subtotal=subtotal)
 
     def click_checkout(self, capture_alert: bool = True) -> str | None:
         """Click checkout and capture the native alert message."""
@@ -93,6 +126,11 @@ class CartSection:
             products.append(CartProduct(title, quantity, price, subtotal))
 
         return products
+    
+    def get_total_price(self) -> float:
+        """Return the cart total as a float."""
+        text = self.total_price.inner_text().replace("$", "").strip()
+        return float(text)
 
     def increase_quantity(self, item_name: str, times: int = 1) -> None:
         item = self.cart_items.locator(f"p:has-text('{item_name}')").locator("..").locator("..")
