@@ -177,17 +177,22 @@ class CartSection:
     #Ensure Empty Cart UI elements are displayed when sideboard is opened with no items in cart
     def verify_section_visible(self):
         """
-        Assert that the cart section root and key inner elements are visible.
+        Assert that the cart section root and key inner elements are visible,
+        handling animations and delayed rendering.
         """
-        # Ensure the section root is visible
-        expect(self.section_root).to_be_visible()
+        # Wait for the cart panel container
+        cart_panel = self.page.locator("div.sc-1h98xa9-1.kQlqIC")
+        cart_panel.wait_for(state="visible", timeout=5000)
 
-        # Check at least one cart item is visible (if any items exist)
+        # Cart items
         if self.cart_items.count() > 0:
-            expect(self.cart_items.first).to_be_visible()
+            expect(self.cart_items.first).to_be_visible(timeout=5000)
 
-        # Check that the checkout button is visible
-        expect(self.checkout_button).to_be_visible()
+        # Checkout button
+        expect(self.checkout_button).to_be_visible(timeout=5000)
 
-        # Optionally, check the close button is visible
+        # Close button
+        self.cart_close_button = cart_panel.locator("button:has-text('X')")
+        self.cart_close_button.wait_for(state="visible", timeout=5000)
         expect(self.cart_close_button).to_be_visible()
+

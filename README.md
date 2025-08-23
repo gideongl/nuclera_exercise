@@ -167,11 +167,16 @@ See [LICENSE](LICENSE) for details.
 
 ## ⚠️ Notes & Limitations
 
+- **Test Coverage**
+  - I know I've failed to test a lot of the smaller UI features like the free shipping labels and the installment payment displays. I ran out of time to complete more detailed tests
+  - I have endeavoured to write a small number of omnibus tests for each section of the app and for the major flows
+  - Frankly, I put too much time into the framework and DOM implementation and then lost a bunch of time dealing with the github testing task (found in the repo_test file)
+  - All in all, I'm not unhappy with the work produced, but I'd love another month to make it really good.
+
 - **Browser Context**
   - Tests are designed to run in Chromium by default.
   - Running in Firefox or WebKit may require minor adjustments.
   - The test suite currently assumes a desktop viewport; responsive/mobile layouts are not covered.
-
 
 - **Test Environment**
   - Tests assume a stable network connection.
