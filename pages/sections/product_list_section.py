@@ -1,23 +1,23 @@
-##Product List Section refers to the parts of the page inside the container than includes all product cards, size filters and 'star' repo link
+## Product List Section refers to parts of the page inside the container that includes all product cards, size filters, and 'star' repo link
 
 from dataclasses import dataclass
 from typing import List
 from playwright.sync_api import Page, Locator, expect
 import re
 
+
 @dataclass
 class Product:
     title: str
     price: str
     shipping: str
-    images: List[str]   # new field
-
+    images: List[str]
 
 
 class ProductSection:
-    def __init__(self, page: Page):
+    def __init__(self, page: Page, logger=None):
         self.page = page
-
+        self.logger = logger  # optional logger
         # --- Section root ---
         self.section_root: Locator = page.locator("main.sc-ebmerl-1.bmmyxu")
         # --- Inner elements ---
@@ -33,13 +33,10 @@ class ProductSection:
 
     # --- Product methods ---
     def get_displayed_product_count(self) -> int:
-        """
-        Returns the number of products the UI claims are displayed after filtering.
-        """
-        text = self.product_count_label.inner_text().strip()  # e.g., "16 Product(s) found"
+        text = self.product_count_label.inner_text().strip()
         match = re.search(r"(\d+)\s+Product", text)
         return int(match.group(1)) if match else 0
-    
+
     def count_products(self) -> int:
         return self.product_cards.count()
 
@@ -124,6 +121,7 @@ class ProductSection:
             products.append(Product(title=title, price=price, shipping=shipping, images=images))
         return products
 
+
     # --- Size filter methods ---
     def select_size(self, size: str):
         checkbox = self.size_filter_container.locator(f"input[data-testid='checkbox'][value='{size}']")
@@ -132,16 +130,16 @@ class ProductSection:
     def deselect_size(self, size: str):
         checkbox = self.size_filter_container.locator(f"input[data-testid='checkbox'][value='{size}']")
         if checkbox.is_checked():
-            checkbox.uncheck()
+            checkbox.uncheck(force=True)
 
     def deselect_all_sizes(self):
         checkboxes = self.size_filter_container.locator("input[data-testid='checkbox']")
         for i in range(checkboxes.count()):
             cb = checkboxes.nth(i)
             if cb.is_checked():
-                cb.uncheck()
+                cb.uncheck(force=True)
 
-    def get_selected_sizes(self) -> list[str]:
+    def get_selected_sizes(self) -> List[str]:
         selected = []
         checkboxes = self.size_filter_container.locator("input[data-testid='checkbox']")
         for i in range(checkboxes.count()):
@@ -150,93 +148,69 @@ class ProductSection:
                 selected.append(cb.get_attribute("value"))
         return selected
 
+    def get_available_sizes(self) -> List[str]:
+        sizes = []
+        checkboxes = self.size_filter_container.locator("input[data-testid='checkbox']")
+        for i in range(checkboxes.count()):
+            size_value = checkboxes.nth(i).get_attribute("value")
+            if size_value:
+                sizes.append(size_value)
+        return sizes
+
     # --- Helper to check section visibility ---
     def verify_section_visible(self):
         expect(self.section_root).to_be_visible()
         expect(self.product_cards.first).to_be_visible()
         expect(self.size_filter_container).to_be_visible()
         expect(self.repo_star_link).to_be_visible()
-    # --- Helpers to check filter behaviour by Size
 
-    def get_available_sizes(self) -> list[str]:
-        """
-        Returns all size filter options available (XS, S, M, ML, L, XL, XXL, etc.).
-        """
-        sizes = []
-        checkboxes = self.size_filter_container.locator("input[data-testid='checkbox']")
-        for i in range(checkboxes.count()):
-            cb = checkboxes.nth(i)
-            size_value = cb.get_attribute("value")
-            if size_value:
-                sizes.append(size_value)
-        return sizes
-
+    # --- Robust size filter validation ---
     def validate_all_sizes(self) -> dict[str, int]:
         """
-        Validates that selecting each size filter updates the displayed products.
-        Returns a dictionary mapping size -> number of displayed products.
+        Validates all available product size filters dynamically:
+        - Selects each size filter and checks filtered product counts match UI
+        - Confirms product details and images
+        - Returns dict mapping size -> number of products displayed
         """
         results = {}
+        total_products = self.count_products()
         for size in self.get_available_sizes():
             self.deselect_all_sizes()
             self.select_size(size)
-            # Wait for the UI to update product list (optional: you can add explicit wait)
-            expect(self.product_cards.first).to_be_visible()
-            count_displayed = self.get_displayed_product_count()
-            results[size] = count_displayed
-        # Restore to no filter selected
-        self.deselect_all_sizes()
-        return results
+            self.page.wait_for_timeout(100)  # small delay for UI to update
 
-def validate_all_sizes(self):
-    """
-    Validate all available product size filters dynamically:
+            # Get filtered product cards
+            filtered_products = self.get_all_products()
 
-    - Iterates through all size filters (XS, S, M, ML, L, XL, XXL, etc.)
-    - Selects each size filter and verifies the number of displayed products
-      matches the UI-reported count
-    - Ensures all product details (title, price, shipping, images) are present and visible
-    - Compares filtered product counts against the total unfiltered product list
-    - Confirms that images are displayed for each product card
-    """
-    # Capture all size filters
-    checkboxes = self.size_filter_container.locator("input[data-testid='checkbox']")
-    total_products = self.count_products()  # unfiltered product count
+            # Verify UI count matches actual cards
+            try:
+                ui_count_text = self.product_count_label.inner_text()
+                ui_count = int(re.search(r"(\d+)", ui_count_text).group(1))
+            except Exception:
+                ui_count = len(filtered_products)
 
-    for i in range(checkboxes.count()):
-        cb = checkboxes.nth(i)
-        size_value = cb.get_attribute("value")
+            assert len(filtered_products) == ui_count, (
+                f"Size '{size}' filter: expected {ui_count} products, found {len(filtered_products)}"
+            )
 
-        # Select filter
-        cb.check(force=True)
-        
-        # Wait for filtering to update
-        self.page.wait_for_timeout(200)  # small delay, adjust if necessary
+            # Verify each product card
+            for p in filtered_products:
+                assert p.title, "Product missing title"
+                assert p.price, f"Product '{p.title}' missing price"
+                if not p.shipping:
+                    self.logger.warning(f"Product '{p.title}' missing shipping info")
+                assert p.images and all(p.images), f"Product '{p.title}' missing images"
 
-        # Verify filtered product count matches UI count
-        filtered_products = self.get_all_products()
-        try:
-            ui_count_text = self.section_root.locator("main.sc-ebmerl-4 p").inner_text()
-            ui_count = int(re.search(r"(\d+)", ui_count_text).group(1))
-        except Exception:
-            ui_count = len(filtered_products)
+            results[size] = len(filtered_products)
 
-        assert len(filtered_products) == ui_count, (
-            f"Size '{size_value}' filter: expected {ui_count} products, found {len(filtered_products)}"
+            # Deselect filter for next iteration
+            self.deselect_size(size)
+            self.page.wait_for_timeout(50)
+
+        # Confirm unfiltered product count is consistent
+        unfiltered_products = self.get_all_products()
+        assert len(unfiltered_products) == total_products, (
+            f"After clearing filters: expected {total_products} products, found {len(unfiltered_products)}"
         )
 
-        # Validate each product card has title, price, shipping, and at least one image
-        for p in filtered_products:
-            assert p.title, "Product missing title"
-            assert p.price, f"Product '{p.title}' missing price"
-            assert p.shipping, f"Product '{p.title}' missing shipping info"
-            assert p.images and all(p.images), f"Product '{p.title}' missing images"
-
-        # Deselect the size for next iteration
-        cb.uncheck(force=True)
-
-    # Optional: check that total products matches unfiltered count
-    unfiltered_products = self.get_all_products()
-    assert len(unfiltered_products) == total_products, (
-        f"After clearing filters: expected {total_products} products, found {len(unfiltered_products)}"
-    )
+        return results

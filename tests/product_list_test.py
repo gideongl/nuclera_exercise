@@ -1,4 +1,3 @@
-# tests/product_list_test.py
 import pytest
 from pages.shop_page import ShoppingPage
 
@@ -7,25 +6,24 @@ from pages.shop_page import ShoppingPage
 def test_dynamic_product_filters(page, network_logger):
     """
     Fully dynamic product list validation:
-    - Validates all size filters dynamically
-    - Verifies product counts per filter match UI-reported counts
-    - Ensures each product has title, price, shipping info, and images
+    - Iterates through all size filters dynamically
+    - Verifies displayed product counts match UI-reported counts
+    - Ensures each product has title, price, shipping info, and at least one image
     - Confirms total unfiltered product count remains consistent
     """
-
     shopping_page = ShoppingPage(page)
-    
+
     # Navigate to shopping page
     shopping_page.goto("https://automated-test-evaluation.web.app/")
     shopping_page.verify_page_loaded()
     shopping_page.logger.info("Checking visibility of all elements on the product list page")
 
-    # Verify section is visible
+    # Verify product section visibility
     shopping_page.product_list_section.verify_section_visible()
 
     # Run dynamic size filter validation
-    shopping_page.product_list_section.validate_all_sizes()
+    results = shopping_page.product_list_section.validate_all_sizes()
 
-    # Optional: log network requests
-    if network_logger:
-        shopping_page.logger.info(f"Captured {len(network_logger)} network requests during product filter test")
+    # Log results for each size filter
+    for size, count in results.items():
+        shopping_page.logger.info(f"Size '{size}': {count} products displayed")

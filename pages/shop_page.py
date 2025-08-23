@@ -9,7 +9,7 @@ class ShoppingPage (BasePage):
         super().__init__(page)
         self.page = page
         self.work_abroad_section = WorkInNetherlandsSection(page)
-        self.product_list_section = ProductSection(page)
+        self.product_list_section = ProductSection(self.page, logger=self.logger)
         self.cart_section = CartSection(page, self)
 
         #locators for the main page elements
